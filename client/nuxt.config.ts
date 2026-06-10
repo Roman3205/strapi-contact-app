@@ -25,7 +25,20 @@ export default defineNuxtConfig({
     '/': { redirect: '/admin/contacts' }
   },
 
+  experimental: {
+    granularCachedData: false
+  },
+
   compatibilityDate: '2025-01-15',
+
+  vite: {
+    optimizeDeps: {
+      include: [
+        '@plausible-analytics/tracker',
+        '@tanstack/vue-table'
+      ]
+    }
+  },
 
   eslint: {
     config: {
