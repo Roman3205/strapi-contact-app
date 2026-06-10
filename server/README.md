@@ -40,22 +40,42 @@ Strapi gives you many possible deployment options for your project including [St
 yarn strapi deploy
 ```
 
-## 📚 Learn more
+⸻
 
-- [Resource center](https://strapi.io/resource-center) - Strapi resource center.
-- [Strapi documentation](https://docs.strapi.io) - Official Strapi documentation.
-- [Strapi tutorials](https://strapi.io/tutorials) - List of tutorials made by the core team and the community.
-- [Strapi blog](https://strapi.io/blog) - Official Strapi blog containing articles made by the Strapi team and the community.
-- [Changelog](https://strapi.io/changelog) - Find out about the Strapi product updates, new features and general improvements.
+# Strapi Email Setup (Nodemailer)
 
-Feel free to check out the [Strapi GitHub repository](https://github.com/strapi/strapi). Your feedback and contributions are welcome!
+1. Install Packages
 
-## ✨ Community
+```
+npm install @strapi/plugin-email @strapi/provider-email-nodemailer
+```
 
-- [Discord](https://discord.strapi.io) - Come chat with the Strapi community including the core team.
-- [Forum](https://forum.strapi.io/) - Place to discuss, ask questions and find answers, show your Strapi project and get feedback or just talk with other Community members.
-- [Awesome Strapi](https://github.com/strapi/awesome-strapi) - A curated list of awesome things related to Strapi.
+⸻
 
----
+2. Advanced Settings
 
-<sub>🤫 Psst! [Strapi is hiring](https://strapi.io/careers).</sub>
+1. Go to Strapi Admin → Settings → Users & Permissions Plugin → Advanced Settings
+2. Enable Email confirmation after registration
+3. Set Redirection URL to your frontend (e.g., http://localhost:3000/auth/login)
+
+⸻
+
+3. Email Templates
+
+1. Go to Settings → Users & Permissions Plugin → Email templates
+2. Open Email address confirmation
+3. Set From to your SMTP email (e.g., test@gmail.com)
+4. Customize the email body using Strapi variables:
+
+<p>Confirm your email:</p>
+<p><a href="<%= URL %>?confirmation=<%= CODE %>">Confirm your email</a></p>
+
+⸻
+
+4. Test Email Connection
+
+1. Go to Settings → Email → Test Email
+2. Enter a recipient email and click Send test email
+3. Confirm that the email is delivered correctly
+
+⸻

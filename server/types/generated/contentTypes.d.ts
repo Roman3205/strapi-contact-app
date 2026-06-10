@@ -493,7 +493,7 @@ export interface ApiContactContact extends Struct.CollectionTypeSchema {
       Schema.Attribute.Private;
     email: Schema.Attribute.Email & Schema.Attribute.Required;
     firstName: Schema.Attribute.String & Schema.Attribute.Required;
-    Image: Schema.Attribute.Media<'images'>;
+    image: Schema.Attribute.Media<'images'>;
     lastName: Schema.Attribute.String & Schema.Attribute.Required;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<
