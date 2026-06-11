@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="pb-3">
     <div class="flex justify-between w-full items-start">
       <div class="flex flex-col gap-2 mb-5">
         <h2 class="mb-2 text-3xl font-semibold tracking-tight">
@@ -124,8 +124,7 @@ const { data: contacts } = await useAsyncData('contacts', () => contactStore.get
       }
     })) || [])
   },
-  getCachedData(key, nuxtApp, ctx) {
-    if (ctx.cause !== 'initial') return undefined
+  getCachedData(key, nuxtApp) {
     return nuxtApp.payload.data[key] ?? nuxtApp.static.data[key]
   },
   watch: [pageIndex, pageSize]

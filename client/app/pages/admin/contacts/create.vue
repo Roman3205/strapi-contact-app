@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="pb-2">
     <div class="flex flex-col gap-2 mb-5">
       <h2 class="mb-2 text-3xl font-semibold tracking-tight">
         {{ title }}
@@ -78,6 +78,7 @@
               trailingIcon: 'size-4'
             }"
             trailing-icon="i-lucide-chevrons-up-down"
+            @change="state.phone = ''"
           >
             <span class="size-5 flex items-center text-lg">
               {{ country?.emoji || '\u{1F1FA}\u{1F1F8}' }}
@@ -164,10 +165,6 @@ const country = computed(() => phoneCodes.find(c => c.code === countryCode.value
 const dialCode = computed(() => country.value?.dialCode || '+1')
 const mask = computed(() => country.value?.mask || '(###) ###-####')
 
-watch(countryCode, () => {
-  state.phone = ''
-})
-
 definePageMeta({
   layout: 'admin',
   middleware: 'guest'
@@ -228,7 +225,6 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
 
     await useContactStore().imageUpload(formData)
     clearNuxtData('contacts')
-    await refreshNuxtData('contacts')
 
     toast.add({ title: 'Contact created successfully', color: 'success' })
     return navigateTo('/admin/contacts')

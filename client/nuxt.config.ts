@@ -27,7 +27,7 @@ export default defineNuxtConfig({
 
   experimental: {
     purgeCachedData: false,
-    granularCachedData: true
+    granularCachedData: false // also disables usage of ctx in getCachedData
   },
 
   compatibilityDate: '2025-01-15',
