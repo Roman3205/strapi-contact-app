@@ -24,6 +24,8 @@ export interface Contact {
   lastName: string
   email: string
   phone: string
+  dialCode: string
+  countryCode: string
   image: Media
 }
 

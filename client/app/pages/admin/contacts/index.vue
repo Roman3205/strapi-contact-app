@@ -53,6 +53,7 @@
             v-model="globalFilter"
             class="max-w-sm"
             placeholder="Filter..."
+            icon="i-lucide-filter"
           />
         </div>
       </div>
@@ -69,14 +70,14 @@
       />
       <div class="flex mt-6 w-full justify-between">
         <div class="px-4 text-sm text-muted">
-          Showing {{ table?.tableApi?.getRowModel().rows.length || 0 }} of
-          {{ pagination.total || 0 }} entries.
+          Showing {{ contacts.length || 0 }} of
+          {{ total || 0 }} entries.
         </div>
         <div class="flex flex-col-reverse gap-6">
           <UPagination
-            v-model:page="currentPage"
+            v-model:page="pageIndex"
             :items-per-page="pageSize"
-            :total="pagination.total"
+            :total="total"
             class="self-end"
             active-variant="solid"
             active-color="info"
@@ -90,8 +91,6 @@
               @update:model-value="setPageSize"
             />
             <span>entries per page</span>
-            {{ error }}
-            {{ currentPage }}
           </div>
         </div>
       </div>
@@ -111,26 +110,25 @@ const UAvatar = resolveComponent('UAvatar')
 const UDropdownMenu = resolveComponent('UDropdownMenu')
 const config = useRuntimeConfig()
 const contactStore = useContactStore()
-const { pagination } = storeToRefs(contactStore)
-const currentPage = ref(1)
-const pageSize = ref(5)
+const { pageIndex, pageSize, total } = storeToRefs(contactStore)
 
-const { data: contacts, error } = await useAsyncData('contacts', () => contactStore.getRecords({ 'sort': ['createdAt:desc'], 'pagination[page]': currentPage.value,
-
+const { data: contacts } = await useAsyncData('contacts', () => contactStore.getRecords({ 'sort': ['createdAt:desc'], 'pagination[page]': pageIndex.value,
   'pagination[pageSize]': pageSize.value, 'populate': ['image'] }), {
   transform: (data: Contact[]) => {
     return (data.map(contact => ({
       ...contact,
+      phone: `${contact.dialCode} ${contact.phone}`,
       image: {
         ...contact.image,
         url: contact.image?.url ? getMediaUrl(contact.image.url, config.public.strapi.url) : null
       }
     })) || [])
   },
-  getCachedData(key, nuxtApp) {
+  getCachedData(key, nuxtApp, ctx) {
+    if (ctx.cause !== 'initial') return undefined
     return nuxtApp.payload.data[key] ?? nuxtApp.static.data[key]
   },
-  watch: [pageSize, currentPage]
+  watch: [pageIndex, pageSize]
 })
 
 const table = useTemplateRef('table')
@@ -142,7 +140,7 @@ const columnVisibility = ref({
 const pageSizeOptions = [1, 2, 5, 10, 25, 50, 100]
 
 function setPageSize(size: number) {
-  currentPage.value = 1
+  pageIndex.value = 1
   pageSize.value = size
 }
 

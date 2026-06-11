@@ -10,6 +10,8 @@ const state = reactive<Partial<Schema>>({
   password: undefined
 })
 
+const showPassword = ref(false)
+
 useSeoMeta({
   title: 'Log in',
   description: 'Enter your credentials to log into account.'
@@ -68,6 +70,8 @@ definePageMeta({
           v-model="state.email"
           class="w-full"
           type="email"
+          placeholder="Enter your email"
+          icon="i-lucide-at-sign"
         />
       </UFormField>
 
@@ -79,8 +83,24 @@ definePageMeta({
         <UInput
           v-model="state.password"
           class="w-full"
-          type="password"
-        />
+          :type="showPassword ? 'text' : 'password'"
+          placeholder="Enter your password"
+          :ui="{ trailing: 'pe-1' }"
+          icon="i-lucide-lock"
+        >
+          <template #trailing>
+            <UButton
+              color="neutral"
+              variant="link"
+              size="sm"
+              :icon="showPassword ? 'i-lucide-eye-off' : 'i-lucide-eye'"
+              :aria-label="showPassword ? 'Hide password' : 'Show password'"
+              :aria-pressed="showPassword"
+              aria-controls="password"
+              @click="showPassword = !showPassword"
+            />
+          </template>
+        </UInput>
       </UFormField>
 
       <UButton
@@ -94,3 +114,9 @@ definePageMeta({
     </UForm>
   </UPageCard>
 </template>
+
+<style>
+::-ms-reveal {
+    display: none;
+}
+</style>

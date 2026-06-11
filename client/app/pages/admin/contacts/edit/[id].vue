@@ -15,7 +15,7 @@
       :alt="`${state.firstName} avatar`"
     />
     <UForm
-      :schema="schema"
+      :validate="validate"
       :state="state"
       class="space-y-4 mt-4 w-full lg:w-1/2"
       @submit="onSubmit"
@@ -27,6 +27,8 @@
         <UInput
           v-model="state.firstName"
           class="w-full"
+          placeholder="Enter first name"
+          icon="i-lucide-contact-round"
         />
       </UFormField>
 
@@ -37,6 +39,8 @@
         <UInput
           v-model="state.lastName"
           class="w-full"
+          placeholder="Enter last name"
+          icon="i-lucide-signature"
         />
       </UFormField>
 
@@ -48,6 +52,8 @@
           v-model="state.email"
           class="w-full"
           type="email"
+          placeholder="Enter your email"
+          icon="i-lucide-at-sign"
         />
       </UFormField>
 
@@ -55,11 +61,55 @@
         label="Phone"
         name="phone"
       >
-        <UInput
-          v-model="state.phone"
-          type="tel"
-          class="w-full"
-        />
+        <UFieldGroup>
+          <USelectMenu
+            v-model="countryCode"
+            :items="phoneCodes"
+            value-key="code"
+            :search-input="{
+              placeholder: 'Search country...',
+              icon: 'i-lucide-search'
+            }"
+            :filter-fields="['name', 'code', 'dialCode']"
+            :content="{ align: 'start' }"
+            :ui="{
+              base: 'pe-8',
+              content: 'w-48',
+              placeholder: 'hidden',
+              trailingIcon: 'size-4'
+            }"
+            trailing-icon="i-lucide-chevrons-up-down"
+          >
+            <span class="size-5 flex items-center text-lg">
+              {{ country?.emoji || '\u{1F1FA}\u{1F1F8}' }}
+            </span>
+
+            <template #item-leading="{ item }">
+              <span class="size-5 flex items-center text-lg">
+                {{ item.emoji }}
+              </span>
+            </template>
+
+            <template #item-label="{ item }">
+              {{ item.name }} ({{ item.dialCode }})
+            </template>
+          </USelectMenu>
+
+          <UInput
+            v-model="state.phone"
+            v-maska="mask"
+            :placeholder="mask.replaceAll('#', '_')"
+            :style="{ '--dial-code-length': `${dialCode.length + 1.5}ch` }"
+            :ui="{
+              base: 'ps-(--dial-code-length)',
+              leading: 'pointer-events-none text-base md:text-sm text-muted'
+            }"
+          >
+            <template #leading>
+              {{ dialCode }}
+            </template>
+          </UInput>
+        </UFieldGroup>
       </UFormField>
 
       <UFormField
@@ -103,9 +153,23 @@
 
 <script lang="ts" setup>
 import type { output } from 'zod'
-import type { FormSubmitEvent } from '@nuxt/ui'
+import type { FormSubmitEvent, FormError } from '@nuxt/ui'
 import { ContactActionSchema } from '~/schemas'
 import type { Contact } from '~/types'
+import { vMaska } from 'maska/vue'
+import phoneCodes from '@/phone-codes.json'
+
+const countryCode = ref('US')
+
+const country = computed(() => phoneCodes.find(c => c.code === countryCode.value))
+const dialCode = computed(() => country.value?.dialCode || '+1')
+const mask = computed(() => country.value?.mask || '(###) ###-####')
+
+onMounted(() => {
+  watch(countryCode, () => {
+    state.phone = ''
+  })
+})
 
 definePageMeta({
   layout: 'admin',
@@ -116,8 +180,12 @@ const title = 'Edit Contact'
 const description = 'Edit choosen contact'
 
 useSeoMeta({ title, description })
+
 const schema = ContactActionSchema.partial()
-type Schema = output<typeof schema>
+type contactEditSchema = output<typeof schema>
+type Schema = Omit<contactEditSchema, 'phone'> & {
+  phone: string
+}
 
 const state = reactive<Partial<Schema>>({
   firstName: undefined,
@@ -127,6 +195,8 @@ const state = reactive<Partial<Schema>>({
   image: undefined
 })
 
+type stateSchema = typeof state
+
 const contactImageUrl = useState<string | undefined>('contactImageUrl', () => '')
 const contactImageId = useState<number | undefined>('contactImageId', () => undefined)
 
@@ -135,10 +205,29 @@ const route = useRoute()
 const config = useRuntimeConfig()
 const contactId = route.params.id as string
 
+function validate(state: Partial<stateSchema>): FormError[] {
+  const result = schema.safeParse({ firstName: state.firstName, lastName: state.lastName, email: state.email, image: state.image, phone: {
+    mask: mask.value,
+    phoneNumber: state.phone
+  }
+  })
+  if (result.success) return []
+
+  return result.error.issues.map(issue => ({
+    name: issue.path.join('.'),
+    message: issue.message
+  }))
+}
+
 async function onSubmit(event: FormSubmitEvent<Schema>) {
   try {
     const res = await useContactStore().updateContactById(contactId, {
-      ...event.data
+      firstName: event.data.firstName,
+      lastName: event.data.lastName,
+      email: event.data.email,
+      phone: event.data.phone,
+      dialCode: dialCode.value,
+      countryCode: countryCode.value
     })
 
     if (event.data.image) {
@@ -161,6 +250,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
     if (fetchedNewContact) {
       const normalizedContact = {
         ...fetchedNewContact,
+        phone: `${fetchedNewContact.dialCode} ${fetchedNewContact.phone}`,
         image: { ...fetchedNewContact.image,
           url: getMediaUrl(fetchedNewContact.image.url, config.public.strapi.url) as string
         }
@@ -193,18 +283,21 @@ const { data: fetchedContact, refresh } = await useAsyncData(
 
 const initialContact = computed(() => fetchedContact.value || cachedContact.value)
 
-const setInitialValues = (initialContact: Contact) => {
+const setInitialValues = async (initialContact: Contact) => {
+  countryCode.value = initialContact.countryCode
+
   Object.assign(state, {
     firstName: initialContact.firstName,
     lastName: initialContact.lastName,
     email: initialContact.email,
     phone: initialContact.phone
   })
+
   contactImageUrl.value = getMediaUrl(initialContact.image?.url, config.public.strapi.url)
   contactImageId.value = initialContact.image?.id
 }
 
-watchEffect(() => {
+watchEffect(async () => {
   if (initialContact.value) {
     setInitialValues(initialContact.value)
   }

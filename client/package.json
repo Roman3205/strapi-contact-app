@@ -20,6 +20,7 @@
     "@nuxtjs/plausible": "3.0.2",
     "@nuxtjs/strapi": "2.2.0",
     "@pinia/nuxt": "0.11.3",
+    "maska": "^3.2.0",
     "nuxt": "^4.4.8",
     "pinia": "^3.0.4",
     "tailwindcss": "^4.3.0",

@@ -25,15 +25,9 @@ export default defineNuxtConfig({
     '/': { redirect: '/admin/contacts' }
   },
 
-    plausible: {
-    autoOutboundTracking: true,
-    fileDownloads: true,
-    formSubmissions: true,
-    proxy: true,
-  },
-
   experimental: {
-    granularCachedData: false
+    purgeCachedData: false,
+    granularCachedData: true
   },
 
   compatibilityDate: '2025-01-15',
@@ -54,6 +48,14 @@ export default defineNuxtConfig({
         braceStyle: '1tbs'
       }
     }
+  },
+
+  plausible: {
+    autoOutboundTracking: true,
+    fileDownloads: true,
+    formSubmissions: true,
+    proxy: true,
+    ignoredHostnames: [] // localhost can be tracked either
   },
 
   strapi: {

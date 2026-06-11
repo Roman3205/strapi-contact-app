@@ -3,22 +3,21 @@ import type { Contact } from '~/types'
 
 export const useContactStore = defineStore('contact', () => {
   const client = useStrapiClient()
-  const pagination = ref<{
-    total: number
-    pageCount: number
-  }>({
-    total: 0,
-    pageCount: 0
-  })
+  const total = ref<number>(0)
+  const pageIndex = ref<number>(0)
+  const pageSize = ref<number>(5)
 
   const getRecords = async (opts: Strapi5RequestParams<Contact> = {}) => {
     const res = await client<FindMany<Contact>>('contacts', {
       method: 'GET',
       params: opts
     })
-    // @ts-expect-error pageCount exists
-    pagination.value.pageCount = res.meta.pagination.pageCount
-    pagination.value.total = res.meta.pagination!.total
+
+    total.value = res.meta.pagination!.total
+    // @ts-expect-error page exists
+    pageIndex.value = res.meta.pagination.page
+    // @ts-expect-error pageSize exists
+    pageSize.value = res.meta.pagination.pageSize
     return res.data
   }
 
@@ -66,7 +65,7 @@ export const useContactStore = defineStore('contact', () => {
     return res
   }
 
-  return { pagination, getRecords, createRecord, imageUpload, getContactById, updateContactById, imageDelete }
+  return { pageSize, pageIndex, total, getRecords, createRecord, imageUpload, getContactById, updateContactById, imageDelete }
 })
 
 if (import.meta.hot) {
