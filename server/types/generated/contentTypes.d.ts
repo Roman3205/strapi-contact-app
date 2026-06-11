@@ -488,12 +488,14 @@ export interface ApiContactContact extends Struct.CollectionTypeSchema {
     draftAndPublish: false;
   };
   attributes: {
+    countryCode: Schema.Attribute.String & Schema.Attribute.Required;
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
+    dialCode: Schema.Attribute.String & Schema.Attribute.Required;
     email: Schema.Attribute.Email & Schema.Attribute.Required;
     firstName: Schema.Attribute.String & Schema.Attribute.Required;
-    image: Schema.Attribute.Media<'images'>;
+    image: Schema.Attribute.Media<'images'> & Schema.Attribute.Required;
     lastName: Schema.Attribute.String & Schema.Attribute.Required;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<
@@ -501,7 +503,7 @@ export interface ApiContactContact extends Struct.CollectionTypeSchema {
       'api::contact.contact'
     > &
       Schema.Attribute.Private;
-    phone: Schema.Attribute.String;
+    phone: Schema.Attribute.String & Schema.Attribute.Required;
     publishedAt: Schema.Attribute.DateTime;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &

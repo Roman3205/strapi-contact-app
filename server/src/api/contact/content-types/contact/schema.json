@@ -24,14 +24,24 @@
       "required": true
     },
     "phone": {
-      "type": "string"
+      "type": "string",
+      "required": true
     },
     "image": {
       "type": "media",
       "multiple": false,
+      "required": true,
       "allowedTypes": [
         "images"
       ]
+    },
+    "dialCode": {
+      "type": "string",
+      "required": true
+    },
+    "countryCode": {
+      "type": "string",
+      "required": true
     }
   }
 }
