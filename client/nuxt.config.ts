@@ -25,6 +25,13 @@ export default defineNuxtConfig({
     '/': { redirect: '/admin/contacts' }
   },
 
+    plausible: {
+    autoOutboundTracking: true,
+    fileDownloads: true,
+    formSubmissions: true,
+    proxy: true,
+  },
+
   experimental: {
     granularCachedData: false
   },
