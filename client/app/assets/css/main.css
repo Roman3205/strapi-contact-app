@@ -16,3 +16,24 @@
   --color-green-900: #0A5331;
   --color-green-950: #052E16;
 }
+
+@media print {
+  body * {
+    visibility: hidden;
+  }
+
+  .print-area,
+  .print-area * {
+    visibility: visible;
+  }
+
+  .print-area {
+position: fixed !important;
+
+    left: 0 !important;
+
+    top: 0 !important;
+
+    width: 100% !important;
+  }
+}

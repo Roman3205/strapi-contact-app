@@ -20,7 +20,7 @@
     <USeparator />
     <div class="flex flex-col flex-1 w-full">
       <div class="flex justify-between items-center w-full mt-4">
-        <div class="py-3.5">
+        <div class="py-3.5 flex items-center gap-2">
           <UDropdownMenu
             :items="
               table?.tableApi
@@ -47,6 +47,13 @@
               trailing-icon="i-lucide-chevron-down"
             />
           </UDropdownMenu>
+          <UButton
+            label="Print"
+            color="neutral"
+            variant="outline"
+            trailing-icon="i-lucide-printer"
+            @click="printTable"
+          />
         </div>
         <div class="flex px-4 py-3.5">
           <UInput
@@ -59,13 +66,14 @@
       </div>
       <UTable
         ref="table"
-        v-model:global-filter="globalFilter"
         v-model:column-visibility="columnVisibility"
         :data="contacts"
         :columns="columns"
-        class="mt-4 border-1 border-gray-200 dark:border-1 dark:border-gray-600 rounded-md"
+        class="mt-4 border-1 print-area text-xl border-gray-200 dark:border-1 dark:border-gray-600 rounded-md"
         :ui="{
-          th: 'px-4 py-3.5 text-sm text-highlighted text-left font-semibold border-r border-default last:border-r-0'
+          separator: 'hidden',
+          th: 'font-medium px-4 py-3.5 print:text-center border-r border-b last:border-r-0 border-default border-b-(--ui-border-accented) [&:nth-last-child(2)]:print:border-r-0 last:print:hidden',
+          td: 'print:whitespace-normal  print:break-words print:p-2 print:text-xs print:border-r [&:nth-last-child(2)]:print:border-none print:border-default last:print:hidden'
         }"
       />
       <div class="flex mt-6 w-full justify-between">
@@ -110,24 +118,28 @@ const UAvatar = resolveComponent('UAvatar')
 const UDropdownMenu = resolveComponent('UDropdownMenu')
 const config = useRuntimeConfig()
 const contactStore = useContactStore()
-const { pageIndex, pageSize, total } = storeToRefs(contactStore)
+const { pageIndex, pageSize, total, globalFilter } = storeToRefs(contactStore)
+
+const printTable = () => {
+  window.print()
+}
 
 const { data: contacts } = await useAsyncData('contacts', () => contactStore.getRecords({ 'sort': ['createdAt:desc'], 'pagination[page]': pageIndex.value,
-  'pagination[pageSize]': pageSize.value, 'populate': ['image'] }), {
+  'pagination[pageSize]': pageSize.value, 'filters[$or][0][firstName][$containsi]': globalFilter.value, 'filters[$or][1][lastName][$containsi]': globalFilter.value, 'filters[$or][2][email][$containsi]': globalFilter.value, 'populate': ['image'] }), {
   transform: (data: Contact[]) => {
     return (data.map(contact => ({
       ...contact,
       phone: `${contact.dialCode} ${contact.phone}`,
       image: {
         ...contact.image,
-        url: contact.image?.url ? getMediaUrl(contact.image.url, config.public.strapi.url) : null
+        url: contact.image?.url ? getMediaUrl(contact.image.url, config.public.strapi.url) : ''
       }
     })) || [])
   },
   getCachedData(key, nuxtApp) {
     return nuxtApp.payload.data[key] ?? nuxtApp.static.data[key]
   },
-  watch: [pageIndex, pageSize]
+  watch: [pageIndex, pageSize, globalFilter]
 })
 
 const table = useTemplateRef('table')
@@ -142,8 +154,6 @@ function setPageSize(size: number) {
   pageIndex.value = 1
   pageSize.value = size
 }
-
-const globalFilter = ref('')
 
 definePageMeta({
   middleware: 'guest',
@@ -311,5 +321,4 @@ function getRowItems(row: Row<Contact>) {
 </script>
 
 <style>
-
 </style>

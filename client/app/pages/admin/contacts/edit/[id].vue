@@ -247,7 +247,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
         ...fetchedNewContact,
         phone: `${fetchedNewContact.dialCode} ${fetchedNewContact.phone}`,
         image: { ...fetchedNewContact.image,
-          url: getMediaUrl(fetchedNewContact.image.url, config.public.strapi.url) as string
+          url: fetchedNewContact.image ? getMediaUrl(fetchedNewContact.image.url, config.public.strapi.url) as string : ''
         }
       }
       cachedContacts.value = (cachedContacts.value ?? []).map(contact => contact.documentId === normalizedContact.documentId ? normalizedContact : contact)
@@ -255,6 +255,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
     toast.add({ title: 'Contact updated successfully', color: 'success' })
     return
   } catch (error) {
+    console.log(error)
     toast.add({ title: 'Failed contact update', color: 'error', duration: 6000 })
   }
 }

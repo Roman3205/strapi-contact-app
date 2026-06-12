@@ -6,6 +6,7 @@ export const useContactStore = defineStore('contact', () => {
   const total = ref<number>(0)
   const pageIndex = ref<number>(0)
   const pageSize = ref<number>(5)
+  const globalFilter = ref<string>('')
 
   const getRecords = async (opts: Strapi5RequestParams<Contact> = {}) => {
     const res = await client<FindMany<Contact>>('contacts', {
@@ -65,7 +66,7 @@ export const useContactStore = defineStore('contact', () => {
     return res
   }
 
-  return { pageSize, pageIndex, total, getRecords, createRecord, imageUpload, getContactById, updateContactById, imageDelete }
+  return { pageSize, globalFilter, pageIndex, total, getRecords, createRecord, imageUpload, getContactById, updateContactById, imageDelete }
 })
 
 if (import.meta.hot) {
