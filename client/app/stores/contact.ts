@@ -4,7 +4,7 @@ import type { Contact } from '~/types'
 export const useContactStore = defineStore('contact', () => {
   const client = useStrapiClient()
   const total = ref<number>(0)
-  const pageIndex = ref<number>(0)
+  const pageIndex = ref<number>(1)
   const pageSize = ref<number>(5)
   const globalFilter = ref<string>('')
 

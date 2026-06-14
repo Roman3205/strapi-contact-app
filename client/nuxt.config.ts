@@ -26,7 +26,6 @@ export default defineNuxtConfig({
   },
 
   experimental: {
-    purgeCachedData: false,
     granularCachedData: false // also disables usage of ctx in getCachedData
   },
 
@@ -35,8 +34,13 @@ export default defineNuxtConfig({
   vite: {
     optimizeDeps: {
       include: [
+        '@faker-js/faker',
         '@plausible-analytics/tracker',
-        '@tanstack/vue-table'
+        '@tanstack/vue-table',
+        '@vue/devtools-core',
+        '@vue/devtools-kit',
+        'maska/vue',
+        'zod'
       ]
     }
   },
